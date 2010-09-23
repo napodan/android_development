@@ -264,6 +264,10 @@ public class Monkey {
             return false;
         }
 
+        public int appEarlyNotResponding(String processName, int pid, String annotation) {
+            return 0;
+        }
+
         public int appNotResponding(String processName, int pid, String processStats) {
             System.err.println("// NOT RESPONDING: " + processName + " (pid " + pid + ")");
             System.err.println(processStats);
