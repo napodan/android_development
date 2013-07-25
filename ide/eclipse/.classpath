@@ -78,7 +78,6 @@
 	<classpathentry kind="src" path="libcore/dalvik/src/main/java"/>
 	<classpathentry kind="src" path="libcore/icu/src/main/java"/>
 	<classpathentry kind="src" path="libcore/json/src/main/java"/>
-	<classpathentry kind="src" path="libcore/junit/src/main/java"/>
 	<classpathentry kind="src" path="libcore/luni/src/main/java"/>
 	<classpathentry kind="src" path="libcore/xml/src/main/java"/>
 	<classpathentry kind="src" path="out/target/common/obj/APPS/ApiDemos_intermediates/src/src"/>
