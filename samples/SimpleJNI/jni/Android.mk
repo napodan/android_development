@@ -32,7 +32,8 @@ LOCAL_SRC_FILES:= \
 
 # All of the shared libraries we link against.
 LOCAL_SHARED_LIBRARIES := \
-	libutils
+	libutils \
+	liblog
 
 # No static libraries.
 LOCAL_STATIC_LIBRARIES :=
@@ -48,7 +49,5 @@ LOCAL_CFLAGS +=
 # to add this library to the prelink map and set this to true. However,
 # it's difficult to do this for applications that are not supplied as
 # part of a system image.
-
-LOCAL_PRELINK_MODULE := false
 
 include $(BUILD_SHARED_LIBRARY)
