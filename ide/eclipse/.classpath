@@ -36,6 +36,7 @@
 	<classpathentry kind="src" path="frameworks/base/core/java"/>
 	<classpathentry kind="src" path="frameworks/base/core/config/sdk"/>
 	<classpathentry kind="src" path="frameworks/base/graphics/java"/>
+	<classpathentry kind="src" path="frameworks/base/icu4j/java"/>
 	<classpathentry kind="src" path="frameworks/base/keystore/java"/>
 	<classpathentry kind="src" path="frameworks/base/location/java"/>
 	<classpathentry kind="src" path="frameworks/base/media/java"/>
