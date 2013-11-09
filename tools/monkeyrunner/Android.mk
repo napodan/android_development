@@ -16,3 +16,4 @@
 MONKEYRUNNER_LOCAL_DIR := $(call my-dir)
 include $(MONKEYRUNNER_LOCAL_DIR)/etc/Android.mk
 include $(MONKEYRUNNER_LOCAL_DIR)/src/Android.mk
+include $(MONKEYRUNNER_LOCAL_DIR)/test/Android.mk
