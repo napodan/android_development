@@ -23,17 +23,21 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.android.monkeyrunner.doc.MonkeyRunnerExported;
 
 import org.python.core.ArgParser;
+import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
+import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +56,8 @@ public final class JythonUtils {
         Builder<Class<? extends PyObject>, Class<?>> builder = ImmutableMap.builder();
 
         builder.put(PyString.class, String.class);
-        builder.put(PyFloat.class, Float.class);
+        // What python calls float, most people call double
+        builder.put(PyFloat.class, Double.class);
         builder.put(PyInteger.class, Integer.class);
 
         PYOBJECT_TO_JAVA_OBJECT_MAP = builder.build();
@@ -85,7 +90,7 @@ public final class JythonUtils {
         Method m;
 
         try {
-            m = MonkeyRunner.class.getMethod(methodName, PyObject[].class, String[].class);
+            m = clz.getMethod(methodName, PyObject[].class, String[].class);
         } catch (SecurityException e) {
             LOG.log(Level.SEVERE, "Got exception: ", e);
             return null;
@@ -107,48 +112,67 @@ public final class JythonUtils {
      * @return the double value
      */
     public static double getFloat(ArgParser ap, int position) {
-        // cast is safe as getPyObjectbyType ensures it
-        PyFloat object = (PyFloat) ap.getPyObjectByType(position, PyFloat.TYPE);
-        return object.asDouble();
+        PyObject arg = ap.getPyObject(position);
+
+        if (Py.isInstance(arg, PyFloat.TYPE)) {
+            return ((PyFloat) arg).asDouble();
+        }
+        if (Py.isInstance(arg, PyInteger.TYPE)) {
+            return ((PyInteger) arg).asDouble();
+        }
+        throw Py.TypeError("Unable to parse argument: " + position);
     }
 
     /**
      * Get a list of arguments from an ArgParser.
      *
-     * @param <T> the type of list items to return
      * @param ap the ArgParser
      * @param position the position in the parser to get the argument from
-     * @param clz the type of items to return
      * @return a list of those items
      */
     @SuppressWarnings("unchecked")
-    public static <T> List<T> getList(ArgParser ap, int position, Class<?> clz) {
-        List<T> ret = Lists.newArrayList();
-        // cast is safe as getPyObjectbyType ensures it
-        PyList array = (PyList) ap.getPyObjectByType(position, PyList.TYPE);
+    public static List<Object> getList(ArgParser ap, int position) {
+        PyObject arg = ap.getPyObject(position, Py.None);
+        if (Py.isInstance(arg, PyNone.TYPE)) {
+            return Collections.emptyList();
+        }
+
+        List<Object> ret = Lists.newArrayList();
+        PyList array = (PyList) arg;
         for (int x = 0; x < array.__len__(); x++) {
-            T item = (T) array.__getitem__(x).__tojava__(clz);
-            ret.add(item);
+            PyObject item = array.__getitem__(x);
+
+            Class<?> javaClass = PYOBJECT_TO_JAVA_OBJECT_MAP.get(item.getClass());
+            if (javaClass != null) {
+                ret.add(item.__tojava__(javaClass));
+            }
         }
         return ret;
     }
 
     /**
-     * Get a dictionary from an ArgParser.
+     * Get a dictionary from an ArgParser.  For ease of use, key types are always coerced to
+     * strings.  If key type cannot be coeraced to string, an exception is raised.
      *
      * @param ap the ArgParser to work with
      * @param position the position in the parser to get.
-     * @return a Map mapping the String key to their underlying type.
+     * @return a Map mapping the String key to the value
      */
     public static Map<String, Object> getMap(ArgParser ap, int position) {
+        PyObject arg = ap.getPyObject(position, Py.None);
+        if (Py.isInstance(arg, PyNone.TYPE)) {
+            return Collections.emptyMap();
+        }
+
         Map<String, Object> ret = Maps.newHashMap();
         // cast is safe as getPyObjectbyType ensures it
-        PyDictionary dict = (PyDictionary) ap.getPyObjectByType(position, PyDictionary.TYPE);
+        PyDictionary dict = (PyDictionary) arg;
         PyList items = dict.items();
         for (int x = 0; x < items.__len__(); x++) {
             // It's a list of tuples
             PyTuple item = (PyTuple) items.__getitem__(x);
-            String key = (String) item.__getitem__(0).__tojava__(String.class);
+            // We call str(key) on the key to get the string and then convert it to the java string.
+            String key = (String) item.__getitem__(0).__str__().__tojava__(String.class);
             PyObject value = item.__getitem__(1);
 
             // Look up the conversion type and convert the value
@@ -158,5 +182,35 @@ public final class JythonUtils {
             }
         }
         return ret;
+    }
+
+    private static PyObject convertObject(Object o) {
+        if (o instanceof String) {
+            return new PyString((String) o);
+        } else if (o instanceof Double) {
+            return new PyFloat((Double) o);
+        } else if (o instanceof Integer) {
+            return new PyInteger((Integer) o);
+        } else if (o instanceof Float) {
+            float f = (Float) o;
+            return new PyFloat(f);
+        }
+        return Py.None;
+    }
+
+    /**
+     * Convert the given Java Map into a PyDictionary.
+     *
+     * @param map the map to convert
+     * @return the python dictionary
+     */
+    public static PyDictionary convertMapToDict(Map<String, Object> map) {
+        Map<PyObject, PyObject> resultMap = Maps.newHashMap();
+
+        for (Entry<String, Object> entry : map.entrySet()) {
+            resultMap.put(new PyString(entry.getKey()),
+                    convertObject(entry.getValue()));
+        }
+        return new PyDictionary(resultMap);
     }
 }
