@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="packages/apps/AccountsAndSyncSettings/src"/>
+	<classpathentry kind="src" path="packages/apps/AlarmClock/src"/>
 	<classpathentry kind="src" path="packages/apps/Bluetooth/src"/>
 	<classpathentry kind="src" path="packages/apps/Browser/src"/>
 	<classpathentry kind="src" path="packages/apps/Calendar/src"/>
@@ -10,11 +11,17 @@
 	<classpathentry kind="src" path="packages/apps/Contacts/src"/>
 	<classpathentry kind="src" path="packages/apps/DeskClock/src"/>
 	<classpathentry kind="src" path="packages/apps/Email/src"/>
+	<classpathentry kind="src" path="packages/apps/Gallery3D/src"/>
+	<classpathentry kind="src" path="packages/apps/GlobalSearch/src"/>
+	<classpathentry kind="src" path="packages/apps/GoogleSearch/src"/>
 	<classpathentry kind="src" path="packages/apps/HTMLViewer/src"/>
+	<classpathentry kind="src" path="packages/apps/Launcher/src"/>
 	<classpathentry kind="src" path="packages/apps/Launcher2/src"/>
+	<classpathentry kind="src" path="packages/apps/Music/src"/>
 	<classpathentry kind="src" path="packages/apps/Mms/src"/>
 	<classpathentry kind="src" path="packages/apps/PackageInstaller/src"/>
 	<classpathentry kind="src" path="packages/apps/Phone/src"/>
+	<classpathentry kind="src" path="packages/apps/Provision/src"/>
 	<classpathentry kind="src" path="packages/apps/QuickSearchBox/src"/>
 	<classpathentry kind="src" path="packages/apps/Settings/src"/>
 	<classpathentry kind="src" path="packages/apps/SoundRecorder/src"/>
