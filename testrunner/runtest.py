@@ -225,6 +225,8 @@ class TestRunner(object):
     logger.SilentLog("Building tests...")
 
     tests = self._GetTestsToRun()
+    # turn off dalvik verifier if necessary
+    self._TurnOffVerifier(tests)
     self._DoFullBuild(tests)
 
     target_set = Set()
@@ -399,6 +401,7 @@ class TestRunner(object):
           self._adb.SendCommand("reboot")
           self._adb.SendCommand("wait-for-device", timeout_time=60,
                                 retry_count=3)
+          self._adb.EnableAdbRoot()
 
   def RunTests(self):
     """Main entry method - executes the tests according to command line args."""
